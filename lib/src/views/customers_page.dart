@@ -284,13 +284,14 @@ class _CustomersPageState extends State<CustomersPage> {
   }
 
   Future<void> _addCustomerDialog() async {
-    final nameController = TextEditingController();
-    final phoneController = TextEditingController();
-    String selectedGender = 'male';
+  final nameController = TextEditingController();
+  final phoneController = TextEditingController();
+  String selectedGender = 'male';
 
-    final res = await showDialog<bool>(
-      context: context,
-      builder: (context) => Directionality(
+  final res = await showDialog<bool>(
+    context: context,
+    builder: (context) => StatefulBuilder(  // Wrap the entire dialog with StatefulBuilder
+      builder: (context, setDialogState) => Directionality(
         textDirection: TextDirection.rtl,
         child: Dialog(
           backgroundColor: Colors.white,
@@ -314,7 +315,9 @@ class _CustomersPageState extends State<CustomersPage> {
                           keyboardType: TextInputType.phone),
                         const SizedBox(height: 20),
                         _buildGenderSelector(selectedGender, (gender) {
-                          selectedGender = gender;
+                          setDialogState(() {  // Use setDialogState instead of just assigning
+                            selectedGender = gender;
+                          });
                         }),
                       ],
                     ),
@@ -362,11 +365,11 @@ class _CustomersPageState extends State<CustomersPage> {
           ),
         ),
       ),
-    );
+    ),
+  );
 
-    if (res == true) await _loadData();
-  }
-
+  if (res == true) await _loadData();
+}
   Widget _buildDialogHeader(String title, BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
@@ -432,50 +435,53 @@ class _CustomersPageState extends State<CustomersPage> {
   }
 
   Widget _buildGenderSelector(String selectedGender, Function(String) onChanged) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        const Text(
+  return Column(
+    children: [
+      Container(
+        width: double.infinity, // Take full width
+        child: const Text(
           'الجنس',
+          textAlign: TextAlign.right, // Explicit right text alignment
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
             color: Colors.black87,
           ),
         ),
-        const SizedBox(height: 12),
-        StatefulBuilder(
-          builder: (context, setDialogState) => Row(
-            children: [
-              Expanded(
-                child: _buildGenderOption(
-                  'female',
-                  'أنثى',
-                  Icons.female,
-                  selectedGender,
-                  (gender) {
-                    setDialogState(() => onChanged(gender));
-                  },
-                ),
+      ),
+      const SizedBox(height: 12),
+      StatefulBuilder(
+        builder: (context, setDialogState) => Row(
+          children: [
+            Expanded(
+              child: _buildGenderOption(
+                'female',
+                'أنثى',
+                Icons.female,
+                selectedGender,
+                (gender) {
+                  setDialogState(() => onChanged(gender));
+                },
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildGenderOption(
-                  'male',
-                  'ذكر',
-                  Icons.male,
-                  selectedGender,
-                  (gender) {
-                    setDialogState(() => onChanged(gender));
-                  },
-                ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildGenderOption(
+                'male',
+                'ذكر',
+                Icons.male,
+                selectedGender,
+                (gender) {
+                  setDialogState(() => onChanged(gender));
+                },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
+}
 
   Widget _buildGenderOption(String value, String label, IconData icon, 
       String selectedGender, Function(String) onTap) {
