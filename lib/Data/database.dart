@@ -75,3 +75,6 @@ LazyDatabase _openConnection() {
     return NativeDatabase(file);
   });
 }
+
+// A single shared instance for the app to use. Import `appDb` from UI code.
+final AppDatabase appDb = AppDatabase();

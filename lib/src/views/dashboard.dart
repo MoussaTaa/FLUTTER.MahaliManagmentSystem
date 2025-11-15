@@ -1,7 +1,54 @@
 import 'package:flutter/material.dart';
+import '../../Data/database.dart';
 
-class DashboardPage extends StatelessWidget {
+class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
+
+  @override
+  State<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage> {
+  int totalCustomers = 0;
+  int todaysPackages = 0;
+  double totalRevenue = 0;
+  List<Map<String, String>> recentActivities = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    // Count customers
+    final customersList = await appDb.getAllCustomers();
+    final now = DateTime.now();
+
+    // Load packages and compute today's packages + revenue
+    final packages = await appDb.select(appDb.packages).get();
+
+    final todays = packages.where((p) {
+      final pd = p.packageDate;
+      return pd.year == now.year && pd.month == now.month && pd.day == now.day;
+    }).toList();
+
+    double revenueSum = packages.fold(0.0, (double acc, p) => acc + (p.totalPayment));
+
+    // Recent activities: use packageHistory table if exists
+    final historyRows = await appDb.select(appDb.packageHistory).get();
+    final recent = historyRows.reversed.take(10).map((h) => {
+      'action': h.action,
+      'time': h.actionDate.toString(),
+    }).toList();
+
+    setState(() {
+      totalCustomers = customersList.length;
+      todaysPackages = todays.length;
+      totalRevenue = revenueSum;
+      recentActivities = recent.cast<Map<String, String>>().toList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +78,7 @@ class DashboardPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 32),
-            
+
             // Statistics Cards
             Expanded(
               child: GridView.count(
@@ -42,31 +89,31 @@ class DashboardPage extends StatelessWidget {
                 children: [
                   _buildStatCard(
                     title: 'إجمالي العملاء',
-                    value: '1,234',
+                    value: totalCustomers.toString(),
                     icon: Icons.people,
                     color: Colors.blue,
-                    change: '+12%',
+                    change: '',
                   ),
                   _buildStatCard(
                     title: 'الطلبات اليوم',
-                    value: '89',
+                    value: todaysPackages.toString(),
                     icon: Icons.shopping_cart,
                     color: Colors.green,
-                    change: '+5%',
+                    change: '',
                   ),
                   _buildStatCard(
                     title: 'الإيرادات',
-                    value: '45,678 د.م',
+                    value: '${totalRevenue.toStringAsFixed(2)} د.م',
                     icon: Icons.attach_money,
                     color: Colors.orange,
-                    change: '+8%',
+                    change: '',
                   ),
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 20),
-            
+
             // Recent Activity
             Container(
               padding: const EdgeInsets.all(20),
@@ -92,20 +139,22 @@ class DashboardPage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  _buildActivityItem(
-                    'طلب جديد من محمد أحمد',
-                    '10 دقائق',
-                    Icons.shopping_bag,
-                  ),
-                  _buildActivityItem(
-                    'عميل جديد: فاطمة الزهراء',
-                    '25 دقيقة',
-                    Icons.person_add,
-                  ),
-                  _buildActivityItem(
-                    'تم تحديث المنتج #123',
-                    'ساعة واحدة',
-                    Icons.update,
+                  // Render activity items left-to-right inside this block
+                  Directionality(
+                    textDirection: TextDirection.ltr,
+                    child: Column(
+                      children: recentActivities.isEmpty
+                          ? [
+                              // Keep the empty message in Arabic but allow it to align naturally
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text('لا توجد أنشطة بعد', textAlign: TextAlign.left),
+                              )
+                            ]
+                          : recentActivities
+                              .map((a) => _buildActivityItem(a['action'] ?? '', a['time'] ?? '', Icons.history))
+                              .toList(),
+                    ),
                   ),
                 ],
               ),
