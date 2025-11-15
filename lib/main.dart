@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'view/dashboard.dart'; // Import the dashboard
 
 void main() {
   runApp(const MyApp());
@@ -10,7 +11,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Garean',
+      title: 'Mahali MS',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -32,26 +33,47 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   String selectedMenu = 'لوحة التحكم';
 
+  // Method to get the current page based on selected menu
+  Widget _getCurrentPage() {
+    switch (selectedMenu) {
+      case 'لوحة التحكم':
+        return const DashboardPage();
+      case 'العملاء':
+        return _buildPlaceholderPage('العملاء');
+      case 'السجل':
+        return _buildPlaceholderPage('السجل');
+      case 'الإعدادات':
+        return _buildPlaceholderPage('الإعدادات');
+      default:
+        return const DashboardPage();
+    }
+  }
+
+  // Placeholder page for other menu items
+  Widget _buildPlaceholderPage(String title) {
+    return Container(
+      color: Colors.grey[100],
+      child: Center(
+        child: Text(
+          title,
+          style: const TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+            color: Colors.black54,
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Row(
         children: [
-          // Main content area
+          // Main content area - now showing different pages
           Expanded(
-            child: Container(
-              color: Colors.grey[100],
-              child: Center(
-                child: Text(
-                  selectedMenu,
-                  style: const TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black54,
-                  ),
-                ),
-              ),
-            ),
+            child: _getCurrentPage(),
           ),
           // Sidebar on the right
           Directionality(
@@ -82,7 +104,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                         const SizedBox(width: 10),
                         const Text(
-                          'Garean',
+                          'Mahali MS',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 24,
