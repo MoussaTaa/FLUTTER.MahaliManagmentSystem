@@ -54,6 +54,11 @@ class AppDatabase extends _$AppDatabase {
   // Customers
   Future<int> createCustomer(CustomersCompanion entry) => into(customers).insert(entry);
   Future<List<Customer>> getAllCustomers() => select(customers).get();
+  Future<int> deleteCustomer(int id) => (delete(customers)..where((c) => c.id.equals(id))).go();
+  Future<bool> updateCustomer(int id, CustomersCompanion entry) => update(customers).replace(entry.copyWith(id: Value(id)));
+  Future<int> togglePinnedCustomer(int id, bool isPinned) {
+    return (update(customers)..where((c) => c.id.equals(id))).write(CustomersCompanion(isPinned: Value(isPinned)));
+  }
 
   // Packages
   Future<int> createPackage(PackagesCompanion entry) => into(packages).insert(entry);

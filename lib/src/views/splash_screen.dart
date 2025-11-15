@@ -39,7 +39,7 @@ class SplashScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   const Text(
-                    'إدارة المحلات التجارية',
+                    'إدارة قروض المحلات',
                     style: TextStyle(
                       color: Colors.white70,
                       fontSize: 18,
@@ -64,7 +64,7 @@ class SplashScreen extends StatelessWidget {
                 'POWERED BY MOUSSA TAALOUCHT',
                 style: TextStyle(
                   color: Colors.white.withOpacity(0.95),
-                  fontSize: 14,
+                  fontSize: 18,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 1,
                 ),

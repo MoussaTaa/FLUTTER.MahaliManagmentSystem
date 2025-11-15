@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'src/views/dashboard.dart'; // Import the dashboard from new location
+import 'src/views/dashboard.dart';
 import 'src/views/splash_screen.dart';
+import 'src/views/customers_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -49,18 +50,23 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  String selectedMenu = 'لوحة التحكم';
+  static const String menuDashboard = 'dashboard';
+  static const String menuCustomers = 'customers';
+  static const String menuHistory = 'history';
+  static const String menuSettings = 'settings';
+
+  String selectedMenu = menuDashboard;
 
   // Method to get the current page based on selected menu
   Widget _getCurrentPage() {
     switch (selectedMenu) {
-      case 'لوحة التحكم':
+      case menuDashboard:
         return const DashboardPage();
-      case 'العملاء':
-        return _buildPlaceholderPage('العملاء');
-      case 'السجل':
+      case menuCustomers:
+        return const CustomersPage();
+      case menuHistory:
         return _buildPlaceholderPage('السجل');
-      case 'الإعدادات':
+      case menuSettings:
         return _buildPlaceholderPage('الإعدادات');
       default:
         return const DashboardPage();
@@ -154,18 +160,22 @@ class _HomePageState extends State<HomePage> {
                         _buildMenuItem(
                           icon: Icons.dashboard_outlined,
                           title: 'لوحة التحكم',
+                          menuKey: menuDashboard,
                         ),
                         _buildMenuItem(
                           icon: Icons.people_outline,
                           title: 'العملاء',
+                          menuKey: menuCustomers,
                         ),
                         _buildMenuItem(
                           icon: Icons.history,
                           title: 'السجل',
+                          menuKey: menuHistory,
                         ),
                         _buildMenuItem(
                           icon: Icons.settings_outlined,
                           title: 'الإعدادات',
+                          menuKey: menuSettings,
                         ),
                       ],
                     ),
@@ -182,8 +192,9 @@ class _HomePageState extends State<HomePage> {
   Widget _buildMenuItem({
     required IconData icon,
     required String title,
+    required String menuKey,
   }) {
-    final isSelected = selectedMenu == title;
+    final isSelected = selectedMenu == menuKey;
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 2),
@@ -208,7 +219,7 @@ class _HomePageState extends State<HomePage> {
         ),
         onTap: () {
           setState(() {
-            selectedMenu = title;
+            selectedMenu = menuKey;
           });
         },
       ),
