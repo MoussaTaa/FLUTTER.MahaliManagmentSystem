@@ -1,12 +1,30 @@
 import 'package:flutter/material.dart';
 import 'view/dashboard.dart'; // Import the dashboard
+import 'splash_screen.dart';
 
 void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  bool _showSplash = true;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(seconds: 3), () {
+      setState(() {
+        _showSplash = false;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +36,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         fontFamily: 'Cairo',
       ),
-      home: const HomePage(),
+      home: _showSplash ? const SplashScreen() : const HomePage(),
     );
   }
 }
