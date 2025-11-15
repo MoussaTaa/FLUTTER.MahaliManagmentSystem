@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'view/dashboard.dart'; // Import the dashboard
-import 'splash_screen.dart';
+import 'src/views/dashboard.dart'; // Import the dashboard from new location
+import 'src/views/splash_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -19,7 +19,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 3), () {
+    Future.delayed(const Duration(seconds: 5), () {
       setState(() {
         _showSplash = false;
       });
