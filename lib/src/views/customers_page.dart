@@ -284,92 +284,93 @@ class _CustomersPageState extends State<CustomersPage> {
   }
 
   Future<void> _addCustomerDialog() async {
-  final nameController = TextEditingController();
-  final phoneController = TextEditingController();
-  String selectedGender = 'male';
+    final nameController = TextEditingController();
+    final phoneController = TextEditingController();
+    String selectedGender = 'male';
 
-  final res = await showDialog<bool>(
-    context: context,
-    builder: (context) => StatefulBuilder(  // Wrap the entire dialog with StatefulBuilder
-      builder: (context, setDialogState) => Directionality(
-        textDirection: TextDirection.rtl,
-        child: Dialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          child: Container(
-            width: 500,
-            constraints: const BoxConstraints(maxHeight: 600),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _buildDialogHeader('إضافة عميل جديد', context),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        _buildTextField('الاسم الكامل', nameController, 'أدخل الاسم الكامل'),
-                        const SizedBox(height: 20),
-                        _buildTextField('رقم الهاتف', phoneController, 'أدخل رقم الهاتف', 
-                          keyboardType: TextInputType.phone),
-                        const SizedBox(height: 20),
-                        _buildGenderSelector(selectedGender, (gender) {
-                          setDialogState(() {  // Use setDialogState instead of just assigning
-                            selectedGender = gender;
-                          });
-                        }),
-                      ],
+    final res = await showDialog<bool>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => Directionality(
+          textDirection: TextDirection.rtl,
+          child: Dialog(
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            child: Container(
+              width: 500,
+              constraints: const BoxConstraints(maxHeight: 600),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildDialogHeader('إضافة عميل جديد', context),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          _buildTextField('الاسم الكامل', nameController, 'أدخل الاسم الكامل'),
+                          const SizedBox(height: 20),
+                          _buildTextField('رقم الهاتف', phoneController, 'أدخل رقم الهاتف', 
+                            keyboardType: TextInputType.phone),
+                          const SizedBox(height: 20),
+                          _buildGenderSelector(selectedGender, (gender) {
+                            setDialogState(() {
+                              selectedGender = gender;
+                            });
+                          }),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                _buildDialogFooter(
-                  context,
-                  onSave: () async {
-                    final name = nameController.text.trim();
-                    final phone = phoneController.text.trim();
-                    
-                    // Validation: all fields are required
-                    if (name.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('يرجى إدخال الاسم الكامل')),
+                  _buildDialogFooter(
+                    context,
+                    onSave: () async {
+                      final name = nameController.text.trim();
+                      final phone = phoneController.text.trim();
+                      
+                      // Validation: all fields are required
+                      if (name.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('يرجى إدخال الاسم الكامل')),
+                        );
+                        return;
+                      }
+                      if (phone.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('يرجى إدخال رقم الهاتف')),
+                        );
+                        return;
+                      }
+                      if (selectedGender.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('يرجى اختيار النوع')),
+                        );
+                        return;
+                      }
+                      
+                      await appDb.createCustomer(
+                        CustomersCompanion.insert(
+                          fullName: name,
+                          gender: selectedGender,
+                          phoneNumber: drift.Value(phone),
+                        ),
                       );
-                      return;
-                    }
-                    if (phone.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('يرجى إدخال رقم الهاتف')),
-                      );
-                      return;
-                    }
-                    if (selectedGender.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('يرجى اختيار النوع')),
-                      );
-                      return;
-                    }
-                    
-                    await appDb.createCustomer(
-                      CustomersCompanion.insert(
-                        fullName: name,
-                        gender: selectedGender,
-                        phoneNumber: drift.Value(phone),
-                      ),
-                    );
-                    Navigator.pop(context, true);
-                  },
-                  saveLabel: 'إضافة',
-                ),
-              ],
+                      Navigator.pop(context, true);
+                    },
+                    saveLabel: 'إضافة',
+                  ),
+                ],
+              ),
             ),
           ),
         ),
       ),
-    ),
-  );
+    );
 
-  if (res == true) await _loadData();
-}
+    if (res == true) await _loadData();
+  }
+
   Widget _buildDialogHeader(String title, BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
@@ -435,53 +436,53 @@ class _CustomersPageState extends State<CustomersPage> {
   }
 
   Widget _buildGenderSelector(String selectedGender, Function(String) onChanged) {
-  return Column(
-    children: [
-      Container(
-        width: double.infinity, // Take full width
-        child: const Text(
-          'الجنس',
-          textAlign: TextAlign.right, // Explicit right text alignment
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
+    return Column(
+      children: [
+        Container(
+          width: double.infinity,
+          child: const Text(
+            'الجنس',
+            textAlign: TextAlign.right,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
           ),
         ),
-      ),
-      const SizedBox(height: 12),
-      StatefulBuilder(
-        builder: (context, setDialogState) => Row(
-          children: [
-            Expanded(
-              child: _buildGenderOption(
-                'female',
-                'أنثى',
-                Icons.female,
-                selectedGender,
-                (gender) {
-                  setDialogState(() => onChanged(gender));
-                },
+        const SizedBox(height: 12),
+        StatefulBuilder(
+          builder: (context, setDialogState) => Row(
+            children: [
+              Expanded(
+                child: _buildGenderOption(
+                  'female',
+                  'أنثى',
+                  Icons.female,
+                  selectedGender,
+                  (gender) {
+                    setDialogState(() => onChanged(gender));
+                  },
+                ),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildGenderOption(
-                'male',
-                'ذكر',
-                Icons.male,
-                selectedGender,
-                (gender) {
-                  setDialogState(() => onChanged(gender));
-                },
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildGenderOption(
+                  'male',
+                  'ذكر',
+                  Icons.male,
+                  selectedGender,
+                  (gender) {
+                    setDialogState(() => onChanged(gender));
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    ],
-  );
-}
+      ], 
+    );
+  }
 
   Widget _buildGenderOption(String value, String label, IconData icon, 
       String selectedGender, Function(String) onTap) {
@@ -742,11 +743,14 @@ class _CustomersPageState extends State<CustomersPage> {
               columnSpacing: 24,
               horizontalMargin: 24,
               headingRowColor: WidgetStateProperty.all(Colors.grey[50]),
+              headingTextStyle: const TextStyle(fontWeight: FontWeight.bold),
+              // Completely disable hover effects
+              dataRowColor: WidgetStateProperty.all(Colors.transparent),
               columns: const [
-                DataColumn(label: Text('الاسم', style: TextStyle(fontWeight: FontWeight.bold))),
-                DataColumn(label: Text('الهاتف', style: TextStyle(fontWeight: FontWeight.bold))),
-                DataColumn(label: Text('الطلبات', style: TextStyle(fontWeight: FontWeight.bold))),
-                DataColumn(label: Text('الجنس', style: TextStyle(fontWeight: FontWeight.bold))),
+                DataColumn(label: Text('الاسم')),
+                DataColumn(label: Text('الهاتف')),
+                DataColumn(label: Text('الطلبات')),
+                DataColumn(label: Text('الجنس')),
                 DataColumn(label: Text('')),
               ],
               rows: rows.map((c) {
@@ -754,22 +758,12 @@ class _CustomersPageState extends State<CustomersPage> {
                 final isPinned = _pinnedCustomers[c.id] ?? false;
                 
                 return DataRow(
-                  color: isPinned 
-                      ? WidgetStateProperty.all(Colors.blue[50]?.withOpacity(0.3))
-                      : null,
-                  onSelectChanged: (selected) {
-                    if (selected == true) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PackagePage(
-                            customerId: c.id,
-                            customerName: c.fullName,
-                          ),
-                        ),
-                      );
-                    }
-                  },
+                  // Remove onSelectChanged to disable row selection/hover
+                  color: WidgetStateProperty.all(
+                    isPinned 
+                        ? Colors.blue[50]?.withOpacity(0.3)
+                        : Colors.white
+                  ),
                   cells: [
                     DataCell(
                       Row(
@@ -784,8 +778,32 @@ class _CustomersPageState extends State<CustomersPage> {
                           ),
                         ],
                       ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PackagePage(
+                              customerId: c.id,
+                              customerName: c.fullName,
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                    DataCell(Text(c.phoneNumber ?? '-', style: TextStyle(color: Colors.grey[600]))),
+                    DataCell(
+                      Text(c.phoneNumber ?? '-', style: TextStyle(color: Colors.grey[600])),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PackagePage(
+                              customerId: c.id,
+                              customerName: c.fullName,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                     DataCell(
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -801,6 +819,17 @@ class _CustomersPageState extends State<CustomersPage> {
                           ),
                         ),
                       ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PackagePage(
+                              customerId: c.id,
+                              customerName: c.fullName,
+                            ),
+                          ),
+                        );
+                      },
                     ),
                     DataCell(
                       Row(
@@ -814,6 +843,17 @@ class _CustomersPageState extends State<CustomersPage> {
                           Text(c.gender == 'male' ? 'ذكر' : 'أنثى'),
                         ],
                       ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PackagePage(
+                              customerId: c.id,
+                              customerName: c.fullName,
+                            ),
+                          ),
+                        );
+                      },
                     ),
                     DataCell(
                       PopupMenuButton(
